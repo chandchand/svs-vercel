@@ -16,7 +16,7 @@ type RelayUpdate struct {
 	Key     int `json:"key"`
 }
 
-func HandlerUpdate(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func Handler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch {
 		http.Error(w, "Only PATCH allowed", http.StatusMethodNotAllowed)
 		return

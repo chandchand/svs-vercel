@@ -16,7 +16,7 @@ type RelayGet struct {
 
 const firebaseURL = "https://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
 
-func HandlerGet(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func Handler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET allowed", http.StatusMethodNotAllowed)
 		return
