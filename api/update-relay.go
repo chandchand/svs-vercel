@@ -1,50 +1,48 @@
-package main
+// api/update-relay.go
+package updaterelay
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
 )
 
-const updateURL = "https://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
-
-type RelayUpdate struct {
+type Relay struct {
 	Contact int `json:"contact"`
 	Engine  int `json:"engine"`
 	Key     int `json:"key"`
 }
 
-func Handler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+const firebaseURL = "https://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
+
+func Handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch {
-		http.Error(w, "Only PATCH allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Invalid body", http.StatusBadRequest)
+	var relay Relay
+	if err := json.NewDecoder(r.Body).Decode(&relay); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	req, err := http.NewRequest(http.MethodPatch, updateURL, strings.NewReader(string(body)))
+	payload, _ := json.Marshal(relay)
+	req, err := http.NewRequest(http.MethodPatch, firebaseURL, strings.NewReader(string(payload)))
 	if err != nil {
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		http.Error(w, "Failed to update Firebase", http.StatusInternalServerError)
+		http.Error(w, "Failed to send request", http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Update success",
-	})
+	io.Copy(w, resp.Body) // Optional: bisa juga return message sendiri
 }

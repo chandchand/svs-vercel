@@ -1,14 +1,13 @@
-package main
+package getrelay
 
 import (
-	"context"
 	"encoding/json"
-	"io/ioutil"
-	"log"
+	"fmt"
 	"net/http"
 )
 
-type RelayGet struct {
+// Relay model
+type Relay struct {
 	Contact int `json:"contact"`
 	Engine  int `json:"engine"`
 	Key     int `json:"key"`
@@ -16,24 +15,18 @@ type RelayGet struct {
 
 const firebaseURL = "https://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
 
-func Handler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only GET allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+// Handler is the entrypoint function Vercel expects
+func Handler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get(firebaseURL)
 	if err != nil {
-		log.Println("Error:", err)
-		http.Error(w, "Failed to fetch from Firebase", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to get data: %v", err), http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	var relay RelayGet
-	if err := json.Unmarshal(body, &relay); err != nil {
-		http.Error(w, "Failed to parse Firebase response", http.StatusInternalServerError)
+	var relay Relay
+	if err := json.NewDecoder(resp.Body).Decode(&relay); err != nil {
+		http.Error(w, "Failed to parse response", http.StatusInternalServerError)
 		return
 	}
 
