@@ -26,15 +26,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer resp.Body.Close()
 
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		fmt.Println("🔥 Firebase Response:", string(bodyBytes)) // log ke Vercel
+
 		var relay Relay
-		if err := json.NewDecoder(resp.Body).Decode(&relay); err != nil {
+		if err := json.Unmarshal(bodyBytes, &relay); err != nil {
 			http.Error(w, "Failed to parse response", http.StatusInternalServerError)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(relay)
-
 	case http.MethodPatch:
 		var relay Relay
 		if err := json.NewDecoder(r.Body).Decode(&relay); err != nil {
