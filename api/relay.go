@@ -14,7 +14,7 @@ type Relay struct {
 	Key     bool `json:"key"`
 }
 
-const firebaseURL = "https://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
+const firebaseURL = "http://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
