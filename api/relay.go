@@ -9,9 +9,9 @@ import (
 )
 
 type Relay struct {
-	Contact int `json:"contact"`
-	Engine  int `json:"engine"`
-	Key     int `json:"key"`
+	Contact bool `json:"contact"`
+	Engine  bool `json:"engine"`
+	Key     bool `json:"key"`
 }
 
 const firebaseURL = "https://smartvehiclesentinel-2ed68-default-rtdb.asia-southeast1.firebasedatabase.app/relay.json"
